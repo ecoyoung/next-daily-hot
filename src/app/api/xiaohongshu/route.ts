@@ -1,8 +1,4 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
- * @Date: 2026-01-14 11:08:28
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-07-31 17:38:11
  * @Description: 小红书实时热榜
  */
 import { fetchJson } from '@/lib/request'

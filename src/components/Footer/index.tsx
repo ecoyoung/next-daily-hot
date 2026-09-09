@@ -10,39 +10,14 @@ import {
   Chip,
   cn,
   Description,
-  Link,
   Separator,
 } from '@heroui/react'
 import Image from 'next/image'
 import { useState } from 'react'
 
-import pkg from '#/package.json'
-
-import type { ReactNode } from 'react'
-
-interface Social {
-  icon?: ReactNode
-  image?: string
-  url: string
-  label: string
-}
-
 export default function Footer() {
   // 版权年份：渲染期间固定（state 惰性初始化，避免渲染期调用 new Date 导致不纯）
   const [year] = useState(() => new Date().getFullYear())
-  // 备案信息
-  const IcpLinks: Social[] = [
-    {
-      image: '/icp.png',
-      url: 'https://beian.miit.gov.cn/#/Integrated/index',
-      label: process.env.NEXT_PUBLIC_ICP!,
-    },
-    {
-      image: '/gongan.png',
-      url: 'https://beian.mps.gov.cn/#/query/webSearch',
-      label: process.env.NEXT_PUBLIC_GONGAN!,
-    },
-  ]
   return (
     <footer className="shrink-0 mx-auto w-full container! px-6 py-4 grid grid-cols-1 sm:grid-cols-3 items-center gap-2">
       <div className="flex items-center gap-3 justify-self-center sm:justify-self-start">
@@ -72,41 +47,13 @@ export default function Footer() {
           <Chip.Label>服务状态正常</Chip.Label>
         </Chip>
       </div>
-      <Description className="justify-self-center">
+      <Description className="justify-self-center sm:col-span-2 sm:text-right">
         &copy;
         {' '}
         {year}
         {' '}
-        <a
-          href={pkg.author.url}
-          rel="noopener noreferrer"
-          target="_blank"
-          className="hover:text-accent transition-colors"
-        >
-          {process.env.NEXT_PUBLIC_AUTHOR_NAME}
-        </a>
-        . All rights reserved.
+        · 资讯信息来源于相关平台，版权归原作者及发布平台所有
       </Description>
-      <div className="flex gap-2 items-center flex-col sm:flex-row justify-self-center sm:justify-self-end">
-        {IcpLinks.map(({ image, url, label }) => (
-          <Link
-            key={url}
-            href={url}
-            target="_blank"
-            className="flex gap-1 items-center no-underline"
-          >
-            <Image
-              alt={label}
-              height={14}
-              src={image!}
-              width={14}
-            />
-            <Description className="hover:text-accent transition-colors">
-              {label}
-            </Description>
-          </Link>
-        ))}
-      </div>
     </footer>
   )
 }

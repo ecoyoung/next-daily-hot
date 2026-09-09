@@ -8,7 +8,7 @@ import type { ReactNode } from 'react'
 const hotItemsConfig = {
   'WEIBO': { value: 'weibo', label: '微博', tip: '热搜榜' },
   'XIAOHONGSHU': { value: 'xiaohongshu', label: '小红书', tip: '实时热榜' },
-  'BILIBILI': { value: 'bilibili', label: '哔哩哔哩', tip: '热门榜' },
+  'BILIBILI': { value: 'bilibili', label: '哔哩哔哩', tip: '热搜榜' },
   'DOUYIN': { value: 'douyin', label: '抖音', tip: '热点榜' },
   'TOUTIAO': { value: 'toutiao', label: '今日头条', tip: '热榜' },
   'ZHIHU': { value: 'zhihu', label: '知乎', tip: '热榜' },
@@ -25,7 +25,7 @@ const hotItemsConfig = {
   'LOL': { value: 'lol', label: '英雄联盟', tip: '更新公告' },
   'THEPAPER': { value: 'thepaper', label: '澎湃新闻', tip: '热榜' },
   'KUAISHOU': { value: 'kuaishou', label: '快手', tip: '热榜' },
-  'DONGCHEDI': { value: 'dongchedi', label: '懂车帝', tip: '热搜榜' },
+  'DONGCHEDI': { value: 'dongchedi', label: '懂车帝', tip: '今日资讯' },
   'HISTORY_TODAY': { value: 'history-today', label: '百度百科', tip: '历史上的今天', suffix: '年' },
   'WEREAD': { value: 'weread', label: '微信读书', tip: '飙升榜' },
   'DOUBAN_MOVIC': { value: 'douban-movic', label: '豆瓣电影', tip: '新片榜' },
@@ -36,6 +36,14 @@ const hotItemsConfig = {
   'ZHIHU_DAILY': { value: 'zhihu-daily', label: '知乎日报', tip: '推荐榜' },
   'IFANR': { value: 'ifanr', label: '爱范儿', tip: '快讯' },
   'ITHOME': { value: 'ithome', label: 'IT之家', tip: '热榜' },
+  'ELLE': { value: 'elle', label: 'ELLE', tip: '美容速报' },
+  'HZPB': { value: 'hzpb', label: '化妆品报', tip: '最新资讯' },
+  'JUMEILI': { value: 'jumeili', label: '聚美丽', tip: '最新资讯' },
+  'AIHOT': { value: 'aihot', label: 'AIHOT', tip: 'AI 产品' },
+  'WWD': { value: 'wwd', label: 'WWD', tip: '美妆特辑' },
+  'PREMIUM_BEAUTY_NEWS': { value: 'premiumbeautynews', label: 'PBN', tip: '美妆产业' },
+  'COSMETICS_BUSINESS': { value: 'cosmeticsbusiness', label: 'CosBiz', tip: '美妆产业' },
+  'IQINGYAN': { value: 'iqingyan', label: '青眼', tip: '美妆产业' },
 } as const
 
 /** 热榜子项（与 enum-plus 的 items 形状保持一致） */

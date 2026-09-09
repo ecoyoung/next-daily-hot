@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+.heredocs
+.agents
+.env*.local
+*.log
+.DS_Store

@@ -9,11 +9,14 @@
 
 import { Card, Separator, Skeleton } from '@heroui/react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
+import CategoryDial from '@/components/CategoryDial'
 import HotCard from '@/components/HotCard'
+import IntroSplash from '@/components/IntroSplash'
 import SkeletonCard from '@/components/SkeletonCard'
 import { HOT_ITEMS } from '@/enums'
+import { isInCategory } from '@/enums/categories'
 import { useAppStore } from '@/store/useAppStore'
 
 const gridClassName = 'grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]'
@@ -22,16 +25,28 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const hiddenItems = useAppStore(state => state.hiddenItems)
   const sortItems = useAppStore(state => state.sortItems)
+  const category = useAppStore(state => state.category)
 
   const visibleItems = useMemo(() => {
     const hiddenSet = new Set(hiddenItems ?? [])
-    return sortItems.filter(value => !hiddenSet.has(value))
-  }, [hiddenItems, sortItems])
+    // 罗盘分类过滤（源可多标签归属；all 为全选）
+    return sortItems.filter(value => !hiddenSet.has(value) && isInCategory(value, category))
+  }, [hiddenItems, sortItems, category])
 
   useEffect(() => {
     const timer = setTimeout(setMounted, 0, true)
     return () => clearTimeout(timer)
   }, [])
+
+  // 切换分类后网格内容整体更换，回到顶部：
+  // 卡片用 whileInView 点亮，若停留在原滚动位置，新列表在视口外会全部停留在隐藏态（视觉空白）
+  const prevCategoryRef = useRef(category)
+  useEffect(() => {
+    if (prevCategoryRef.current !== category) {
+      prevCategoryRef.current = category
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [category])
 
   // 挂载前渲染骨架网格，避免 SSR 空白 + 全屏 loading 的闪烁
   if (!mounted) {
@@ -61,48 +76,55 @@ export default function Home() {
   }
 
   return (
-    // 👇 父容器必须是 motion.div 并开启 layout
-    <motion.div
-      initial="hidden"
-      layout // ✅ 启用布局动画
-      variants={{ visible: { transition: { staggerChildren: 0.02 } } }} // ✅ 卡片依次交错浮现（30 张卡约 0.6s，避免过长）
-      viewport={{ once: true, margin: '-50px' }}
-      whileInView="visible"
-      className={gridClassName}
-    >
-      <AnimatePresence>
-        {visibleItems.map((value) => {
-          const raw = HOT_ITEMS.raw(value)
-          if (!raw)
-            return null
+    <>
+      <IntroSplash />
+      <CategoryDial />
+      {/* 👇 父容器必须是 motion.div 并开启 layout；
+          key 绑定分类：切换分类时整体重挂载，复用首屏入场路径——
+          若在旧子项退场中途增量挂载新卡片，motion 的 whileInView 观察器不会触发，卡片会卡在隐藏态 */}
+      <motion.div
+        key={category}
+        initial="hidden"
+        layout // ✅ 启用布局动画
+        variants={{ visible: { transition: { staggerChildren: 0.02 } } }} // ✅ 卡片依次交错浮现（30 张卡约 0.6s，避免过长）
+        viewport={{ once: true, margin: '-50px' }}
+        whileInView="visible"
+        className={gridClassName}
+      >
+        <AnimatePresence>
+          {visibleItems.map((value) => {
+            const raw = HOT_ITEMS.raw(value)
+            if (!raw)
+              return null
 
-          return (
+            return (
             // 👇 每个子项也必须是 motion.div + layout
-            <motion.div
-              key={raw.value}
-              exit={{
-                opacity: 0,
-                filter: 'blur(4px)',
-                y: 20,
-                transition: { duration: 0.3, ease: 'easeOut' },
-              }}
-              layout // ✅ 关键：让位置变化可动画
-              transition={{ layout: { type: 'spring', stiffness: 300, damping: 30 } }} // ✅ 位置变化用 spring，更跟手
-              variants={{
-                hidden: { opacity: 0, filter: 'blur(4px)', y: 20 },
-                visible: {
-                  opacity: 1,
-                  filter: 'blur(0px)',
-                  y: 0,
-                  transition: { duration: 0.4, ease: 'easeOut' },
-                },
-              }}
-            >
-              <HotCard {...raw} />
-            </motion.div>
-          )
-        })}
-      </AnimatePresence>
-    </motion.div>
+              <motion.div
+                key={raw.value}
+                exit={{
+                  opacity: 0,
+                  filter: 'blur(4px)',
+                  y: 20,
+                  transition: { duration: 0.3, ease: 'easeOut' },
+                }}
+                layout // ✅ 关键：让位置变化可动画
+                transition={{ layout: { type: 'spring', stiffness: 300, damping: 30 } }} // ✅ 位置变化用 spring，更跟手
+                variants={{
+                  hidden: { opacity: 0, filter: 'blur(4px)', y: 20 },
+                  visible: {
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                    y: 0,
+                    transition: { duration: 0.4, ease: 'easeOut' },
+                  },
+                }}
+              >
+                <HotCard {...raw} />
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+      </motion.div>
+    </>
   )
 }

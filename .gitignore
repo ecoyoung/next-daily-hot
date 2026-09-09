@@ -42,3 +42,4 @@ yarn-error.log*
 next-env.d.ts
 # heroui-agents-md
 .heroui-docs/
+.tunnel-token

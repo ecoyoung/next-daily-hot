@@ -47,19 +47,21 @@ const RowComponent = memo(({ index, data, value, prefix, suffix }: RowData) => {
   const { label } = item
 
   const colorStyle = useMemo(() => {
-    const bgColor = label
-      ? (hotLableColor[label as keyof typeof hotLableColor] || 'var(--default)')
-      : hotTagColor[index] || 'var(--default)'
-
-    const textColor = (label ? hotLableColor[label as keyof typeof hotLableColor] : hotTagColor[index])
-      ? '#fff'
-      : 'var(--default-foreground)'
-
+    const bgColor = hotTagColor[index] || 'var(--default)'
+    const textColor = hotTagColor[index] ? '#fff' : 'var(--default-foreground)'
     return { backgroundColor: bgColor, color: textColor }
-  }, [label, index])
+  }, [index])
+
+  // 标签行内小chip配色：微博爆点色系优先，其余用默认色
+  const tagStyle = useMemo(() => {
+    const bgColor = label ? (hotLableColor[label as keyof typeof hotLableColor] || 'var(--default)') : null
+    if (!bgColor)
+      return null
+    return { backgroundColor: bgColor, color: hotLableColor[label as keyof typeof hotLableColor] ? '#fff' : 'var(--default-foreground)' }
+  }, [label])
 
   // Vercel 最佳实践：primitive 派生值无需 useMemo 缓存
-  const displayText = label ? label.slice(0, 1) : index + 1
+  const displayText = index + 1
 
   const endContent = useMemo(() => {
     if (item.hot) {
@@ -80,6 +82,16 @@ const RowComponent = memo(({ index, data, value, prefix, suffix }: RowData) => {
         >
           {displayText}
         </div>
+        {label
+          ? (
+              <span
+                className="shrink-0 rounded px-1 py-0.5 text-[10px] leading-none whitespace-nowrap"
+                style={tagStyle ?? undefined}
+              >
+                {label.slice(0, 6)}
+              </span>
+            )
+          : null}
         <OverflowDetector type={value} record={item} />
       </div>
       {endContent}

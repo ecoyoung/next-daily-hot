@@ -11,11 +11,17 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { HOT_ITEMS } from '@/enums'
+import { CATEGORY_ORDER } from '@/enums/categories'
 import { fromNow } from '@/lib/utils'
 
 import type { HotValue } from '@/enums'
+import type { CategoryKey } from '@/enums/categories'
 
 interface AppState {
+  /** 当前罗盘选中的分类（all = 全部） */
+  category: CategoryKey
+  setCategory: (category: CategoryKey) => void
+
   /** 每个热榜子项的最后更新时间 */
   UpdateTime: Partial<Record<HotValue, number>> // 每个子项更新时间
   setUpdateTime: (time: Partial<Record<HotValue, number>>) => void
@@ -39,6 +45,12 @@ interface AppState {
 export const useAppStore = create(
   persist<AppState>(
     (set, get) => ({
+      /* ================= 罗盘分类 ================= */
+      category: 'all',
+      setCategory: (category) => {
+        set({ category })
+      },
+
       /* ================= 更新时间 ================= */
       UpdateTime: {},
       setUpdateTime: (time) => {
@@ -91,11 +103,28 @@ export const useAppStore = create(
           sortItems: state.sortItems ?? HOT_ITEMS.values,
         } as AppState
       },
+      // rehydrate 合并：版本不变时 migrate 不会执行，新增/下线的榜单项在这里补齐/清理，
+      // 否则老用户持久化的 sortItems 缺少新榜单 value，首页不会渲染对应卡片
+      merge: (persisted, current) => {
+        const state = (persisted ?? {}) as Partial<AppState>
+        const known = new Set(HOT_ITEMS.values)
+        const oldSort = (state.sortItems ?? []).filter(v => known.has(v))
+        const knownCats = new Set(CATEGORY_ORDER.map(c => c.key))
+        return {
+          ...current,
+          ...state,
+          sortItems: [...oldSort, ...HOT_ITEMS.values.filter(v => !oldSort.includes(v))],
+          hiddenItems: (state.hiddenItems ?? []).filter(v => known.has(v)),
+          // 持久化的分类已下线时回退到全部
+          category: knownCats.has(state.category as CategoryKey) ? state.category : 'all',
+        } as AppState
+      },
       // ⚠️ now 是纯派生用的，不需要持久化
       partialize: state => ({
         UpdateTime: state.UpdateTime,
         hiddenItems: state.hiddenItems,
         sortItems: state.sortItems,
+        category: state.category,
       } as any),
     },
   ),

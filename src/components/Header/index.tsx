@@ -6,14 +6,12 @@
  * @Description: 顶部布局
  */
 'use client'
-import { HouseFill, LogoGithub } from '@gravity-ui/icons'
-import { Button, Description, Tooltip } from '@heroui/react'
+import { Description, Tooltip } from '@heroui/react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 
 import ThemeSwitcher from '@/components/ThemeSwitcher'
 import TimeAndLunar from '@/components/TimeAndLunar'
-import pkg from '#/package.json'
 
 // Vercel 最佳实践：HotSettings 含 @dnd-kit 等重依赖，动态导入避免进入首屏 bundle
 const HotSettings = dynamic(() => import('@/components/HotSettings'))
@@ -22,7 +20,7 @@ export default function Header() {
   return (
     <div className="shrink-0 sticky top-0 z-20 backdrop-blur-sm p-4 container mx-auto grid grid-cols-2 sm:grid-cols-3 items-center">
       <div className="flex gap-2 items-center justify-self-start">
-        <div className="size-9 relative">
+        <div className="size-9 relative shrink-0">
           <Image alt="Logo" fill src="/logo.svg" />
         </div>
         <div>
@@ -46,39 +44,6 @@ export default function Header() {
             主题切换
           </Tooltip.Content>
         </Tooltip>
-        {/* Github */}
-        <Tooltip delay={0}>
-          <Button
-            aria-label="Github"
-            size="sm"
-            variant="ghost"
-            isIconOnly
-            onPress={() => window.open(`https://github.com/${pkg.author.name}/${pkg.name}`)}
-          >
-            <LogoGithub />
-          </Button>
-          <Tooltip.Content showArrow>
-            <Tooltip.Arrow />
-            Github
-          </Tooltip.Content>
-        </Tooltip>
-        {/* 主页 */}
-        <Tooltip delay={0}>
-          <Button
-            aria-label="个人主页"
-            size="sm"
-            variant="ghost"
-            isIconOnly
-            onPress={() => window.open(pkg.author.url)}
-          >
-            <HouseFill />
-          </Button>
-          <Tooltip.Content showArrow>
-            <Tooltip.Arrow />
-            个人主页
-          </Tooltip.Content>
-        </Tooltip>
-
       </div>
     </div>
   )
