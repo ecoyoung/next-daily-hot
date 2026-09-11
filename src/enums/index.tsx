@@ -45,21 +45,21 @@ const hotItemsConfig = {
   'COSMETICS_BUSINESS': { value: 'cosmeticsbusiness', label: 'CosBiz', tip: '美妆产业' },
   'IQINGYAN': { value: 'iqingyan', label: '青眼', tip: '美妆产业' },
   'V2EX': { value: 'v2ex', label: 'V2EX', tip: '热门' },
-  'ZAOBAO': { value: 'zaobao', label: '联合早报', tip: '实时快讯' },
+  'ZAOBAO': { value: 'zaobao', label: '联合早报', tip: '实时快讯', timeline: true },
   'COOLAPK': { value: 'coolapk', label: '酷安', tip: '今日热门' },
-  'MKTNEWS': { value: 'mktnews', label: 'MKTNews', tip: '快讯' },
-  'WALLSTREETCN': { value: 'wallstreetcn', label: '华尔街见闻', tip: '快讯' },
+  'MKTNEWS': { value: 'mktnews', label: 'MKTNews', tip: '快讯', timeline: true },
+  'WALLSTREETCN': { value: 'wallstreetcn', label: '华尔街见闻', tip: '快讯', timeline: true },
   'DONGQIUDI': { value: 'dongqiudi', label: '懂球帝', tip: '热门' },
-  'SPUTNIKNEWSCN': { value: 'sputniknewscn', label: '卫星社', tip: '要闻' },
-  'CANKAOXIAOXI': { value: 'cankaoxiaoxi', label: '参考消息', tip: '要闻' },
-  'CLS': { value: 'cls', label: '财联社', tip: '电报' },
+  'SPUTNIKNEWSCN': { value: 'sputniknewscn', label: '卫星社', tip: '要闻', timeline: true },
+  'CANKAOXIAOXI': { value: 'cankaoxiaoxi', label: '参考消息', tip: '要闻', timeline: true },
+  'CLS': { value: 'cls', label: '财联社', tip: '电报', timeline: true },
   'XUEQIU': { value: 'xueqiu', label: '雪球', tip: '热股' },
   'GELONGHUI': { value: 'gelonghui', label: '格隆汇', tip: '资讯' },
-  'FASTBULL': { value: 'fastbull', label: '法布财经', tip: '快讯' },
+  'FASTBULL': { value: 'fastbull', label: '法布财经', tip: '快讯', timeline: true },
   'SOLIDOT': { value: 'solidot', label: 'Solidot', tip: '资讯' },
   'HACKERNEWS': { value: 'hackernews', label: 'HackerNews', tip: '热榜' },
   'PRODUCTHUNT': { value: 'producthunt', label: 'ProductHunt', tip: '新品' },
-  'JIN10': { value: 'jin10', label: '金十数据', tip: '快讯' },
+  'JIN10': { value: 'jin10', label: '金十数据', tip: '快讯', timeline: true },
   'NOWCODER': { value: 'nowcoder', label: '牛客', tip: '热榜' },
   'SSPAI': { value: 'sspai', label: '少数派', tip: '热门' },
   'IFENG': { value: 'ifeng', label: '凤凰网', tip: '热点' },
@@ -77,13 +77,15 @@ export interface HotItem {
   label: string
   tip: string
   suffix?: ReactNode
+  /** 时间线呈现（快讯流类源：按发布时间排列，无榜单序号语义） */
+  timeline?: boolean
   raw: HotRaw
 }
 
 /** 热榜 key 类型 */
 export type HotKey = keyof typeof hotItemsConfig
 /** 热榜项原始配置 */
-export type HotRaw = (typeof hotItemsConfig)[HotKey]
+export type HotRaw = (typeof hotItemsConfig)[HotKey] & { timeline?: boolean }
 /** 热榜 value 类型 */
 export type HotValue = (typeof hotItemsConfig)[HotKey]['value']
 
@@ -93,6 +95,7 @@ const hotItems: HotItem[] = (Object.entries(hotItemsConfig) as [HotKey, HotRaw][
   label: raw.label,
   tip: raw.tip,
   suffix: 'suffix' in raw ? raw.suffix : undefined,
+  timeline: 'timeline' in raw ? raw.timeline : undefined,
   raw,
 }))
 

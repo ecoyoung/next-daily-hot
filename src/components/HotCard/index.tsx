@@ -24,6 +24,7 @@ import { useEffect, useRef } from 'react'
 
 import BlurFade from '@/components/BlurFade'
 import SkeletonCard from '@/components/SkeletonCard'
+import { HOT_ITEMS } from '@/enums'
 import { API_CACHE_SECONDS, RESPONSE } from '@/enums/response'
 import { useRequest } from '@/hooks/use-request'
 import { useAppStore } from '@/store/useAppStore'
@@ -33,6 +34,8 @@ import HotListVirtual from './HotListVirtual'
 import type { HotListConfig, IResponse } from '@/types'
 
 function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
+  // 时间线呈现标记（快讯流源）
+  const timeline = !!HOT_ITEMS.raw(value)?.timeline
   const setUpdateTime = useAppStore(state => state.setUpdateTime)
   const ref = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true })
@@ -166,6 +169,7 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
                         data={data}
                         prefix={prefix}
                         suffix={suffix}
+                        timeline={timeline}
                         value={value}
                       />
                     </BlurFade>

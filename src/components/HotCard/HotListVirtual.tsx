@@ -13,11 +13,13 @@ export default function HotListVirtual({
   value,
   prefix,
   suffix,
+  timeline,
 }: {
   data: HotListItem[]
   value: HotValue
   prefix?: React.ReactNode
   suffix?: React.ReactNode
+  timeline?: boolean
 }) {
   const parentRef = useRef<HTMLDivElement>(null)
 
@@ -74,6 +76,7 @@ export default function HotListVirtual({
                   index={index}
                   prefix={prefix}
                   suffix={suffix}
+                  timeline={timeline}
                   value={value}
                 />
               </div>
