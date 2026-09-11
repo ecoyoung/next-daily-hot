@@ -77,29 +77,32 @@ const RowComponent = memo(({ index, data, value, prefix, suffix, timeline }: Row
     return null
   }, [item.hot, item.tip, prefix, suffix, timeline])
 
-  // 时间线行：贯穿轴线 + 节点圆点 + 时间标签（发布时间流，无序号语义）
+  // 时间线行（仿 newsnow 的 NewsListTimeLine）：
+  // 左侧细灰竖线贯穿 + 贴轴时间行（小号灰字带短横连接符）+ 缩进标题行，无序号无分隔线
   if (timeline) {
     return (
-      <div className="flex group items-center gap-1 min-w-0 py-1.5 w-full border-b border-default">
-        {/* 轴线段：上下贯穿（行高撑满），首行上段隐藏由外层溢出裁切自然处理 */}
-        <div className="relative mx-2 h-full self-stretch w-px shrink-0 bg-default">
-          <span className="absolute left-1/2 top-1/2 size-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-primary group-hover:bg-primary" />
-        </div>
-        <Description className="shrink-0 w-[3.6rem] text-xs tabular-nums leading-none">
-          {item.tip || ''}
-        </Description>
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+      <div className="flex group gap-2 min-w-0 py-1 w-full">
+        {/* 轴线段：整行高度贯穿，多行连续成轴 */}
+        <div className="ml-2 w-px shrink-0 self-stretch bg-default-foreground/25" />
+        <div className="relative flex min-w-0 flex-1 flex-col gap-0.5 py-0.5">
+          {/* 贴轴短横连接符（压在轴线上） */}
+          <span className="absolute top-[11px] -left-[9px] h-px w-2 bg-default-foreground/25" />
+          <div className="flex items-center gap-1.5">
+            <Description className="text-[10px] leading-none text-muted">
+              {item.tip || ''}
+            </Description>
+            {label
+              ? (
+                  <span
+                    className="shrink-0 rounded px-1 py-0.5 text-[10px] leading-none whitespace-nowrap"
+                    style={tagStyle ?? undefined}
+                  >
+                    {label.slice(0, 6)}
+                  </span>
+                )
+              : null}
+          </div>
           <OverflowDetector type={value} record={item} />
-          {label
-            ? (
-                <span
-                  className="shrink-0 rounded px-1 py-0.5 text-[10px] leading-none whitespace-nowrap"
-                  style={tagStyle ?? undefined}
-                >
-                  {label.slice(0, 6)}
-                </span>
-              )
-            : null}
         </div>
         {item.hot ? <HotDisplay value={item.hot} /> : null}
       </div>
