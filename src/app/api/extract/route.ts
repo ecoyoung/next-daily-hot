@@ -12,7 +12,7 @@ import { JSDOM } from 'jsdom'
 import { UA_CHROME } from '@/lib/request'
 
 const MAX_BYTES = 3 * 1024 * 1024
-const MAX_TEXT_CHARS = 4000
+const MAX_TEXT_CHARS = 16000
 const EXTRACT_REVALIDATE = 3600
 
 export async function GET(request: Request) {
