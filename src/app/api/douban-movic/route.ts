@@ -1,8 +1,8 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2024-05-14 14:02:04
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-07-31 17:35:06
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 豆瓣电影-新片榜
  */
 import * as cheerio from 'cheerio'

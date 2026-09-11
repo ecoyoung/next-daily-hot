@@ -1,3 +1,11 @@
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
+ * @Description:骨架屏卡片
+ */
+
 import { Skeleton } from '@heroui/react'
 
 export default function HotRankSkeleton() {

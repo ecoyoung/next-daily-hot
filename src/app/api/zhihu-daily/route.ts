@@ -1,8 +1,8 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2026-01-26 15:16:29
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-07-31 17:38:28
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 知乎日报 - 推荐榜
  */
 import { fetchJson } from '@/lib/request'

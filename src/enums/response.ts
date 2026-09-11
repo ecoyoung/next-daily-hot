@@ -1,5 +1,9 @@
-/**
- * @description: 请求状态（纯常量，无 JSX 依赖，供服务端 API routes 与客户端共用）
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
+ * @Description: 请求状态（纯常量，无 JSX 依赖，供服务端 API routes 与客户端共用）
  */
 
 /**

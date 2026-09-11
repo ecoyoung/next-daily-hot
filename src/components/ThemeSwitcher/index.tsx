@@ -1,8 +1,8 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2026-01-13 17:03:51
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-07-31 17:41:54
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 主题切换
  */
 'use client'

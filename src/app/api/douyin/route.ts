@@ -1,8 +1,8 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2024-05-14 09:14:07
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-07-31 17:34:57
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 抖音-热点榜
  */
 import { fetchJson } from '@/lib/request'

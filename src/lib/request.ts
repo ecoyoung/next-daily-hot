@@ -1,5 +1,9 @@
-/**
- * @description: 上游请求公共工具：统一 UA、超时、缓存、错误日志与自适应抓取间隔
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
+ * @Description: 上游请求公共工具：统一 UA、超时、缓存、错误日志与自适应抓取间隔
  */
 
 import { createHash } from 'node:crypto'

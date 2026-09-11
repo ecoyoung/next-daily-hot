@@ -1,8 +1,8 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2025-11-20 14:36:58
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-07-31 17:33:46
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 判断文本是否溢出
  */
 'use client'

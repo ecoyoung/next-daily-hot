@@ -1,5 +1,9 @@
-/**
- * @description: 榜单配置
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
+ * @Description: 榜单配置
  */
 export interface HotListConfig {
   value: import('@/enums').HotValue

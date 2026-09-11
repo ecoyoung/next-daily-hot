@@ -1,6 +1,9 @@
 /*
- * @description: 罗盘分类选择器（圆环表冠式循环旋钮）
- * 圆环表圈 + 刻度环绕：中间标签点亮、上下标签暗淡、一次展示 3 个，首尾循环
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
+ * @Description: 罗盘分类选择器（圆环表冠式循环旋钮）
  */
 'use client'
 import { AnimatePresence, motion } from 'motion/react'

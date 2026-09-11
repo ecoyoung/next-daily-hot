@@ -1,5 +1,9 @@
-/**
- * @description: 轻量 RSS/Atom 解析（regex 提取 item 的 title/link/pubDate/description），供 RSS 型榜单源使用
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
+ * @Description: 轻量 RSS/Atom 解析（regex 提取 item 的 title/link/pubDate/description），供 RSS 型榜单源使用
  */
 
 export interface RssItem {

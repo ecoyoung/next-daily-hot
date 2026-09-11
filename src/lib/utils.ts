@@ -1,7 +1,9 @@
-/**
- * @description: 相对时间文本（原生实现，等价于 dayjs 的 fromNow + zh-cn locale）
- * @param timestamp 时间戳
- * @param now 基准时间（默认 Date.now()）；传入 store 时钟可与冷却倒计时保持同源
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
+ * @Description: 相对时间文本（原生实现，等价于 dayjs 的 fromNow + zh-cn locale）
  */
 export function fromNow(timestamp: number, now: number = Date.now()): string {
   const diffSec = (now - timestamp) / 1000

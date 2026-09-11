@@ -1,4 +1,11 @@
-/* eslint-disable next/no-img-element */
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
+ * @Description:社交分享 OG 图生成
+ */
+
 /* eslint-disable react-refresh/only-export-components */
 import { readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
@@ -12,11 +19,11 @@ export const size = {
 }
 export const contentType = 'image/png'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://hot.baiwumm.com'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://zixun.ekspaces.com'
 const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || '今日热榜'
 const APP_DESC = process.env.NEXT_PUBLIC_APP_DESC || '汇聚全网热点资讯，实时掌握热门趋势'
 const APP_HOST = APP_URL.replace(/^https?:\/\//, '').replace(/\/$/, '')
-const AUTHOR_NAME = process.env.NEXT_PUBLIC_AUTHOR_NAME || '白雾茫茫丶'
+const AUTHOR_NAME = process.env.NEXT_PUBLIC_AUTHOR_NAME || 'Ethan Zhou'
 const AUTHOR_ROLE = process.env.NEXT_PUBLIC_AUTHOR_ROLE || '独立开发者'
 const TECH_TAGS = ['React', 'Next.js', 'HeroUI', 'Tailwind CSS']
 

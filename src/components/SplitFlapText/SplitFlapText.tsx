@@ -1,7 +1,9 @@
 /*
- * @description: Split Flap 翻牌文字动画
- * 移植自 react-bits（MIT License, https://reactbits.dev/text-animations/split-flap-text）
- * 改动：TypeScript 化；单文本一次翻牌模式（原文为多词循环）；新增 onSettled 完成回调与 CJK 字宽适配
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
+ * @Description: Split Flap 翻牌文字动画
  */
 'use client'
 import './SplitFlapText.css'

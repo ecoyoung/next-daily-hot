@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
  * @Description: 懂车帝 - 今日资讯
  */
 import { fetchText } from '@/lib/request'

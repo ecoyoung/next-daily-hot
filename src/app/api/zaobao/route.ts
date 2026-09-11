@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 联合早报-实时快讯（GB2312 编码页面，移植自 newsnow，MIT）
  */
 import { Buffer } from 'node:buffer'

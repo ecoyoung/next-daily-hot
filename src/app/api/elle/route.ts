@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: ELLE中文网 - 美容速报
  */
 import { fetchText } from '@/lib/request'

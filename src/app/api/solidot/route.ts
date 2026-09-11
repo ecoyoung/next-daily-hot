@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: Solidot-资讯（RSS）
  */
 import { fetchText } from '@/lib/request'

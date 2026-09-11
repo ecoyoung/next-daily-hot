@@ -1,8 +1,8 @@
 /*
- * @Author: 白雾茫茫丶<baiwumm.com>
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2026-08-07 17:43:06
- * @LastEditors: 白雾茫茫丶<baiwumm.com>
- * @LastEditTime: 2026-08-07 17:43:06
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: useRequest 请求 hook，等价替换 ahooks useRequest（manual / debounceWait / retryCount）
  */
 import { useCallback, useEffect, useRef, useState } from 'react'

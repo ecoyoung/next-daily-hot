@@ -1,6 +1,9 @@
-/**
- * @description: 榜单分类配置（罗盘选择器数据源）
- * 一个榜单源可归属多个分类（多标签）；罗盘按固定顺序循环展示
+/*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
+ * @Description: 榜单分类配置（罗盘选择器数据源）
  */
 
 /** 分类展示项 */

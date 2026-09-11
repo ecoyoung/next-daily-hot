@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 法布财经-快讯（HTML 解析，移植自 newsnow，MIT）
  */
 import * as cheerio from 'cheerio'

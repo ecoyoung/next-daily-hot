@@ -3,13 +3,13 @@
   "version": "3.9.2",
   "private": true,
   "author": {
-    "name": "baiwumm",
-    "email": "me@baiwumm.com",
-    "url": "https://baiwumm.com"
+    "name": "Ethan Zhou",
+    "email": "ecoyoung918@gmail.com",
+    "url": "https://github.com/ecoyoung"
   },
   "git": {
-    "url": "https://github.com/baiwumm/next-daily-hot",
-    "issues": "https://github.com/baiwumm/next-daily-hot/issues"
+    "url": "https://github.com/ecoyoung/next-daily-hot",
+    "issues": "https://github.com/ecoyoung/next-daily-hot/issues"
   },
   "scripts": {
     "dev": "next dev",

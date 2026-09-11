@@ -1,5 +1,9 @@
 /*
- * @description: 入场启动屏——每个会话首次进入播放一次翻牌动画（sessionStorage 门控，刷新不再展示）
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
+ * @Description: 入场启动屏——每个会话首次进入播放一次翻牌动画（sessionStorage 门控，刷新不再展示）
  */
 'use client'
 import { AnimatePresence, motion } from 'motion/react'

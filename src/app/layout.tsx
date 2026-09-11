@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:20:05
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 根布局文件
  */
 
@@ -19,7 +23,7 @@ import pkg from '#/package.json'
 
 import type { Metadata } from 'next'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://hot.baiwumm.com'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://zixun.ekspaces.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL), // 基础 URL,用于补全相对路径
@@ -71,7 +75,6 @@ export default function RootLayout({
       {/* 引入字体文件 */}
       <head>
         <meta name="version" content={pkg.version} />
-        <link href="https://cdn.baiwumm.com" rel="preconnect" />
         <link href="https://cn-font.claude-code-best.win/packages/maple-mono-cn/dist/MapleMono-CN-Regular/result.css" rel="stylesheet" />
       </head>
       <body className="bg-background text-foreground flex flex-col min-h-screen">

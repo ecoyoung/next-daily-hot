@@ -1,4 +1,8 @@
 /*
+ * @Author: Ethan Zhou <ecoyoung918@gmail.com>
+ * @Date: 2026-09-11 14:21:42
+ * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
+ * @LastEditTime: 2026-09-11 14:21:42
  * @Description: 哔哩哔哩-热搜榜（与手机端搜索热榜一致；原热门视频榜接口为 ranking/v2）
  */
 import { fetchJson } from '@/lib/request'
