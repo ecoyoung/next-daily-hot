@@ -3,7 +3,7 @@
  * @Date: 2026-01-05 09:13:12
  * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
  * @LastEditTime: 2026-09-11 14:20:05
- * @Description: 三地翻牌时钟（机场信息板风格）+ 当地公历日期与 UTC 偏移
+ * @Description: 三地翻牌时钟（IANA 代表城市 + ISO 8601 两位偏移）
  */
 import { Description } from '@heroui/react'
 import { memo, useEffect, useState } from 'react'
@@ -12,16 +12,17 @@ import SplitFlapText from '@/components/SplitFlapText/SplitFlapText'
 
 import type { FC } from 'react'
 
+// IANA 时区代表城市（ISO 8601 规范：城市全称 + 两位偏移，不自造缩写）
 const ZONES = [
-  { code: 'BJ', label: '北京', tz: 'Asia/Shanghai' },
-  { code: 'SF', label: '加州', tz: 'America/Los_Angeles' },
-  { code: 'LDN', label: '伦敦', tz: 'Europe/London' },
+  { city: 'BEIJING', tz: 'Asia/Shanghai' },
+  { city: 'LOS ANGELES', tz: 'America/Los_Angeles' },
+  { city: 'LONDON', tz: 'Europe/London' },
 ]
 
-/** 时区 → UTC 偏移标签（UTC+8 / UTC-7 / UTC+0） */
+/** 时区 → ISO 8601 规范的 UTC 偏移（UTC+08:00 / UTC-07:00） */
 function utcOffset(now: Date, tz: string): string {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' }).formatToParts(now)
-  const name = parts.find(p => p.type === 'timeZoneName')?.value ?? 'GMT+0'
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'longOffset' }).formatToParts(now)
+  const name = parts.find(p => p.type === 'timeZoneName')?.value ?? 'GMT+08:00'
   return name.replace('GMT', 'UTC')
 }
 
@@ -67,9 +68,7 @@ const TimeAndLunar: FC = memo(() => {
         {ZONES.map(zone => (
           <div key={zone.tz} className="flex flex-col items-center gap-1">
             <Description className="text-[9px] tracking-[0.25em] text-muted">
-              {zone.code}
-              {' '}
-              {zone.label}
+              {zone.city}
             </Description>
             <SplitFlapText
               charset="numeric"
