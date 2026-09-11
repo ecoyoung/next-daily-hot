@@ -24,7 +24,11 @@ export function parseRss(xmlText: string): RssItem[] {
       pubDate: tag(block, 'pubDate') ?? tag(block, 'published') ?? tag(block, 'updated'),
       description: tag(block, 'description') ?? tag(block, 'summary'),
     }
-  }).filter(v => v.title && v.link)
+  }).filter(v => v.title && v.link).sort((a, b) => {
+    const ta = a.pubDate ? new Date(a.pubDate).getTime() : 0
+    const tb = b.pubDate ? new Date(b.pubDate).getTime() : 0
+    return tb - ta
+  })
 }
 
 /** RSS 日期 → MM-DD 展示 */
@@ -42,5 +46,6 @@ function tag(xml: string, name: string): string | undefined {
   const raw = m ? (m[1] ?? m[2]) : undefined
   if (raw == null)
     return undefined
-  return raw.trim().replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&apos;/g, '\'')
+  // 个别 feed（如极客公园）CDATA 标记内嵌在文本里，统一清洗残留
+  return raw.replace(/<!\[CDATA\[|\]\]>/g, '').trim().replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&apos;/g, '\'')
 }

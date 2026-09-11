@@ -114,6 +114,14 @@ export const SOURCE_CATEGORIES = {
   'zaobao': ['general'],
   'qqvideo': ['lifestyle'],
   'iqiyi': ['lifestyle'],
+  'people': ['general'],
+  'govcn': ['general'],
+  'chinanews': ['general'],
+  'openai': ['tech'],
+  'aibot': ['tech'],
+  'jiemian': ['general'],
+  'geekpark': ['tech'],
+  'tmtpost': ['business'],
   'dongqiudi': ['lifestyle'],
 } as const satisfies Record<string, readonly CategoryKey[]>
 

@@ -74,6 +74,14 @@ const hotItemsConfig = {
   'FREEBUF': { value: 'freebuf', label: 'FreeBuf', tip: '安全资讯' },
   'QQVIDEO': { value: 'qqvideo', label: '腾讯视频', tip: '剧集热搜' },
   'IQIYI': { value: 'iqiyi', label: '爱奇艺', tip: '热播榜' },
+  'PEOPLE': { value: 'people', label: '人民网', tip: '首页头条' },
+  'GOVCN': { value: 'govcn', label: '中国政府网', tip: '政策发布' },
+  'CHINANEWS': { value: 'chinanews', label: '中新网', tip: '即时新闻', timeline: true },
+  'OPENAI': { value: 'openai', label: 'OpenAI', tip: '官方新闻' },
+  'AIBOT': { value: 'aibot', label: 'AIBot', tip: 'AI 资讯' },
+  'JIEMIAN': { value: 'jiemian', label: '界面新闻', tip: '资讯', timeline: true },
+  'GEEKPARK': { value: 'geekpark', label: '极客公园', tip: '资讯' },
+  'TMTPOST': { value: 'tmtpost', label: '钛媒体', tip: '资讯' },
 } as const
 
 /** 热榜子项（与 enum-plus 的 items 形状保持一致） */
