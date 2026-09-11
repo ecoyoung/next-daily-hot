@@ -3,25 +3,24 @@
  * @Date: 2026-01-05 09:13:12
  * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
  * @LastEditTime: 2026-09-11 14:20:05
- * @Description: 三地时钟（北京/加州/伦敦）+ 农历
+ * @Description: 三地翻牌时钟（机场信息板风格）+ 农历
  */
 import { Description } from '@heroui/react'
-import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { memo, useEffect, useState } from 'react'
+
+import SplitFlapText from '@/components/SplitFlapText/SplitFlapText'
 
 import type { FC } from 'react'
 
 const ZONES = [
-  { label: '北京', tz: 'Asia/Shanghai' },
-  { label: '加州', tz: 'America/Los_Angeles' },
-  { label: '伦敦', tz: 'Europe/London' },
+  { code: 'BJ', label: '北京', tz: 'Asia/Shanghai' },
+  { code: 'SF', label: '加州', tz: 'America/Los_Angeles' },
+  { code: 'LDN', label: '伦敦', tz: 'Europe/London' },
 ]
 
-/** 按时区拆解时分秒（数字值，供 NumberFlow 滚动动画） */
-function zonedParts(now: Date, tz: string) {
-  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(now)
-  const get = (type: string) => Number(parts.find(p => p.type === type)?.value ?? 0)
-  return { h: get('hour') % 24, m: get('minute'), s: get('second') }
+/** 时区 → HH:MM:SS（供翻牌组件逐字符翻动） */
+function zonedTime(now: Date, tz: string): string {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now)
 }
 
 const TimeAndLunar: FC = memo(() => {
@@ -71,25 +70,30 @@ const TimeAndLunar: FC = memo(() => {
   }, [])
 
   return (
-    <div className="justify-self-center hidden sm:flex flex-col gap-1 text-center">
-      {/* 三地时钟（数字流滚动） */}
-      <div className="flex items-center justify-center gap-4">
-        {ZONES.map((zone, i) => {
-          const { h, m, s } = zonedParts(now, zone.tz)
-          return (
-            <div key={zone.tz} className="flex items-center gap-2">
-              {i > 0 && <span className="text-default-foreground/20">|</span>}
-              <Description className="text-xs">{zone.label}</Description>
-              <NumberFlowGroup>
-                <div className="flex items-center text-sm tabular-nums">
-                  <NumberFlow format={{ minimumIntegerDigits: 2 }} value={h} />
-                  <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix=":" value={m} />
-                  <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix=":" value={s} />
-                </div>
-              </NumberFlowGroup>
-            </div>
-          )
-        })}
+    <div className="justify-self-center hidden sm:flex flex-col gap-1.5 text-center">
+      {/* 三地翻牌时钟（机场信息板风格：琥珀数字 + 深色字块 + 城市码） */}
+      <div className="flex items-end justify-center gap-5">
+        {ZONES.map(zone => (
+          <div key={zone.tz} className="flex flex-col items-center gap-1">
+            <Description className="text-[9px] tracking-[0.25em] text-muted">
+              {zone.code}
+              {' '}
+              {zone.label}
+            </Description>
+            <SplitFlapText
+              charset="numeric"
+              flipDuration={0.09}
+              flipsPerChar={2}
+              fontSize={20}
+              gap={2}
+              stagger={0}
+              text={zonedTime(now, zone.tz)}
+              textColor="#fbbf24"
+              tileColor="#1c1c1e"
+              tileRadius={3}
+            />
+          </div>
+        ))}
       </div>
       {/* 农历 */}
       <Description>{lunar || '加载农历中...'}</Description>
