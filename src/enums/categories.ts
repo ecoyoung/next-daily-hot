@@ -14,6 +14,7 @@ export interface CategoryItem {
 export type CategoryKey
   = | 'all'
     | 'general'
+    | 'finance'
     | 'social'
     | 'tech'
     | 'business'
@@ -24,6 +25,7 @@ export type CategoryKey
 export const CATEGORY_ORDER: CategoryItem[] = [
   { key: 'all', label: '全部', icon: '🧭' },
   { key: 'general', label: '综合热点', icon: '🔥' },
+  { key: 'finance', label: '财经行情', icon: '📈' },
   { key: 'social', label: '社区社交', icon: '💬' },
   { key: 'tech', label: '科技数码', icon: '💻' },
   { key: 'business', label: '商业创投', icon: '💼' },
@@ -34,6 +36,7 @@ export const CATEGORY_ORDER: CategoryItem[] = [
 const categoryMap: Record<CategoryKey, string> = {
   all: '全部',
   general: '综合热点',
+  finance: '财经行情',
   social: '社区社交',
   tech: '科技数码',
   business: '商业创投',
@@ -87,6 +90,30 @@ export const SOURCE_CATEGORIES = {
   'premiumbeautynews': ['beauty'],
   'cosmeticsbusiness': ['beauty'],
   'iqingyan': ['beauty'],
+  'cls': ['finance'],
+  'wallstreetcn': ['finance'],
+  'xueqiu': ['finance'],
+  'jin10': ['finance'],
+  'gelonghui': ['finance'],
+  'fastbull': ['finance'],
+  'mktnews': ['finance'],
+  'v2ex': ['tech'],
+  'coolapk': ['tech'],
+  'solidot': ['tech'],
+  'hackernews': ['tech'],
+  'producthunt': ['tech'],
+  'nowcoder': ['tech'],
+  'sspai': ['tech'],
+  'freebuf': ['tech'],
+  'chongbuluo': ['tech'],
+  'cankaoxiaoxi': ['general'],
+  'sputniknewscn': ['general'],
+  'ifeng': ['general'],
+  'zaobao': ['general'],
+  'steam': ['lifestyle'],
+  'qqvideo': ['lifestyle'],
+  'iqiyi': ['lifestyle'],
+  'dongqiudi': ['lifestyle'],
 } as const satisfies Record<string, readonly CategoryKey[]>
 
 /** 源是否属于指定分类（all 视为全选） */

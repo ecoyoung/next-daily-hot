@@ -1,0 +1,31 @@
+/*
+ * @Description: FreeBuf-安全资讯（RSS）
+ */
+import { fetchText } from '@/lib/request'
+import { errorResponse, successResponse } from '@/lib/response'
+import { parseRss, rssDateToMonthDay } from '@/lib/rss'
+
+import type { HotListItem } from '@/types'
+
+export async function GET() {
+  // 官方 url
+  const url = 'https://www.freebuf.com/feed'
+  try {
+    const xml = await fetchText(url, {
+      headers: { Referer: 'https://www.freebuf.com/' },
+    })
+    const result: HotListItem[] = parseRss(xml).map(item => ({
+      id: item.link,
+      title: item.title,
+      desc: item.description?.replace(/<[^>]+>/g, '').slice(0, 60),
+      tip: rssDateToMonthDay(item.pubDate),
+      url: item.link,
+      mobileUrl: item.link,
+    }))
+    return successResponse(result)
+  }
+  catch (error) {
+    console.error('上游请求失败：', error)
+    return errorResponse()
+  }
+}
