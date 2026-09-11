@@ -18,14 +18,14 @@ export async function GET() {
   try {
     // 请求数据
     const responseBody = await fetchText(url)
-    // 链接处理
+    // 链接处理：PC 站 /0/{xxx}/{xxx}.htm 结构已随改版废弃（404），统一走 m 站 /html/{id}.htm
     const replaceLink = (url: string, getId: boolean = false) => {
       const match = url.match(/[html|ive]\/(\d+)\.htm/)
       // 是否匹配成功
       if (match && match[1]) {
         return getId
           ? match[1]
-          : `https://www.ithome.com/0/${match[1].slice(0, 3)}/${match[1].slice(3)}.htm`
+          : `https://m.ithome.com/html/${match[1]}.htm`
       }
       // 返回原始 URL
       return url
