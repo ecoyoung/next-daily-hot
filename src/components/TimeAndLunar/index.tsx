@@ -3,13 +3,26 @@
  * @Date: 2026-01-05 09:13:12
  * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
  * @LastEditTime: 2026-09-11 14:20:05
- * @Description: 日期时间
+ * @Description: 三地时钟（北京/加州/伦敦）+ 农历
  */
 import { Description } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { memo, useEffect, useState } from 'react'
 
 import type { FC } from 'react'
+
+const ZONES = [
+  { label: '北京', tz: 'Asia/Shanghai' },
+  { label: '加州', tz: 'America/Los_Angeles' },
+  { label: '伦敦', tz: 'Europe/London' },
+]
+
+/** 按时区拆解时分秒（数字值，供 NumberFlow 滚动动画） */
+function zonedParts(now: Date, tz: string) {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(now)
+  const get = (type: string) => Number(parts.find(p => p.type === type)?.value ?? 0)
+  return { h: get('hour') % 24, m: get('minute'), s: get('second') }
+}
 
 const TimeAndLunar: FC = memo(() => {
   const [now, setNow] = useState(() => new Date())
@@ -24,7 +37,7 @@ const TimeAndLunar: FC = memo(() => {
       const current = new Date()
 
       // 仅当秒数变化时才更新，避免 60fps 重渲染
-      const secondKey = `${current.getHours()}:${current.getMinutes()}:${current.getSeconds()}`
+      const secondKey = `${current.getSeconds()}`
       if (secondKey !== lastSecond) {
         lastSecond = secondKey
         setNow(current)
@@ -57,22 +70,27 @@ const TimeAndLunar: FC = memo(() => {
     }
   }, [])
 
-  const d = now
-
   return (
     <div className="justify-self-center hidden sm:flex flex-col gap-1 text-center">
-      {/* 数字流时间 */}
-      <NumberFlowGroup>
-        <div className="flex items-center justify-center text-sm">
-          <NumberFlow format={{ useGrouping: false }} value={d.getFullYear()} />
-          <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix="-" value={d.getMonth() + 1} />
-          <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix="-" value={d.getDate()} />
-          <span className="mx-1"> </span>
-          <NumberFlow format={{ minimumIntegerDigits: 2 }} value={d.getHours()} />
-          <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix=":" value={d.getMinutes()} />
-          <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix=":" value={d.getSeconds()} />
-        </div>
-      </NumberFlowGroup>
+      {/* 三地时钟（数字流滚动） */}
+      <div className="flex items-center justify-center gap-4">
+        {ZONES.map((zone, i) => {
+          const { h, m, s } = zonedParts(now, zone.tz)
+          return (
+            <div key={zone.tz} className="flex items-center gap-2">
+              {i > 0 && <span className="text-default-foreground/20">|</span>}
+              <Description className="text-xs">{zone.label}</Description>
+              <NumberFlowGroup>
+                <div className="flex items-center text-sm tabular-nums">
+                  <NumberFlow format={{ minimumIntegerDigits: 2 }} value={h} />
+                  <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix=":" value={m} />
+                  <NumberFlow format={{ minimumIntegerDigits: 2 }} prefix=":" value={s} />
+                </div>
+              </NumberFlowGroup>
+            </div>
+          )
+        })}
+      </div>
       {/* 农历 */}
       <Description>{lunar || '加载农历中...'}</Description>
     </div>
