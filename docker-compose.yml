@@ -5,7 +5,10 @@
 #   docker compose --env-file tunnel.env up -d --build --force-recreate
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        BASE: ${BASE_IMAGE:-docker.m.daocloud.io/library/node:22-alpine}
     container_name: news-platform
     restart: unless-stopped
     ports:

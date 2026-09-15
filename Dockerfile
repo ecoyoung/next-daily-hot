@@ -1,11 +1,14 @@
+# 基础镜像走国内镜像源（可通过 --build-arg BASE=node:22-alpine 切回官方源）
+ARG BASE=docker.m.daocloud.io/library/node:22-alpine
+
 # ---- 依赖层 ----
-FROM node:22-alpine AS deps
+FROM ${BASE} AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && corepack prepare pnpm@10.33.1 --activate && pnpm install --frozen-lockfile
 
 # ---- 构建层 ----
-FROM node:22-alpine AS builder
+FROM ${BASE} AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -13,7 +16,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable && pnpm build
 
 # ---- 运行层：standalone 精简产物 ----
-FROM node:22-alpine AS runner
+FROM ${BASE} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
