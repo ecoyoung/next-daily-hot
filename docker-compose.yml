@@ -1,0 +1,22 @@
+# Docker Compose 部署（跨平台：macOS / Windows / Linux）
+# 用法（token 放在 tunnel.env，不进仓库）：
+#   docker compose --env-file tunnel.env up -d --build
+# 注意：更新/重启一律用 --force-recreate（隧道与应用共享网络栈）：
+#   docker compose --env-file tunnel.env up -d --build --force-recreate
+services:
+  app:
+    build: .
+    container_name: news-platform
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cf-tunnel
+    restart: unless-stopped
+    # 与应用容器共享网络栈：CF 后台回源 localhost:3000 直达应用
+    network_mode: "service:app"
+    depends_on:
+      - app
+    command: tunnel --no-autoupdate --protocol http2 run --token ${TUNNEL_TOKEN}
