@@ -8,11 +8,16 @@ services:
     build:
       context: .
       args:
-        BASE: ${BASE_IMAGE:-docker.m.daocloud.io/library/node:22-alpine}
+        BASE: ${BASE_IMAGE:-docker.m.daocloud.io/library/node:24-alpine}
     container_name: news-platform
     restart: unless-stopped
     ports:
       - "3002:3000"
+    environment:
+      # 宿主机代理（tunnel.env 里按需设置，如 HTTP_PROXY=http://host.docker.internal:7890）；留空=直连
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1}
 
   tunnel:
     image: cloudflare/cloudflared:latest

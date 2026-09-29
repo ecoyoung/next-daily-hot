@@ -1,5 +1,5 @@
 # 基础镜像走国内镜像源（可通过 --build-arg BASE=node:22-alpine 切回官方源）
-ARG BASE=docker.m.daocloud.io/library/node:22-alpine
+ARG BASE=docker.m.daocloud.io/library/node:24-alpine
 
 # ---- 依赖层 ----
 FROM ${BASE} AS deps
@@ -20,6 +20,8 @@ FROM ${BASE} AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Node 24+: fetch 走 HTTP(S)_PROXY 环境变量（容器经宿主机代理出网）
+ENV NODE_USE_ENV_PROXY=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
