@@ -27,4 +27,10 @@ services:
     network_mode: "service:app"
     depends_on:
       - app
-    command: tunnel --no-autoupdate --protocol http2 run --token ${TUNNEL_TOKEN}
+    environment:
+      # 与应用相同：隧道连 Cloudflare 边缘时也可走宿主机代理，留空则直连
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1,cloudflare.com}
+    # http2 走 TCP 7844。边缘偶发超时会表现为站点 Host Error，加大重试
+    command: tunnel --no-autoupdate --protocol http2 --retries 20 run --token ${TUNNEL_TOKEN}

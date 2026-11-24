@@ -17,7 +17,7 @@ import IntroSplash from '@/components/IntroSplash'
 import SkeletonCard from '@/components/SkeletonCard'
 import { HOT_ITEMS } from '@/enums'
 import { isInCategory } from '@/enums/categories'
-import { useAppStore } from '@/store/useAppStore'
+import { SOURCE_FAIL_HIDE, useAppStore } from '@/store/useAppStore'
 
 const gridClassName = 'grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]'
 
@@ -26,12 +26,23 @@ export default function Home() {
   const hiddenItems = useAppStore(state => state.hiddenItems)
   const sortItems = useAppStore(state => state.sortItems)
   const category = useAppStore(state => state.category)
+  const sourceHealth = useAppStore(state => state.sourceHealth)
+  const retryFailedSources = useAppStore(state => state.retryFailedSources)
 
   const visibleItems = useMemo(() => {
     const hiddenSet = new Set(hiddenItems ?? [])
     // 罗盘分类过滤（源可多标签归属；all 为全选）
     return sortItems.filter(value => !hiddenSet.has(value) && isInCategory(value, category))
   }, [hiddenItems, sortItems, category])
+
+  const downItems = useMemo(
+    () => visibleItems.filter(value => (sourceHealth[value]?.failCount ?? 0) >= SOURCE_FAIL_HIDE),
+    [sourceHealth, visibleItems],
+  )
+  const shownItems = useMemo(
+    () => visibleItems.filter(value => (sourceHealth[value]?.failCount ?? 0) < SOURCE_FAIL_HIDE),
+    [sourceHealth, visibleItems],
+  )
 
   useEffect(() => {
     const timer = setTimeout(setMounted, 0, true)
@@ -79,6 +90,23 @@ export default function Home() {
     <>
       <IntroSplash />
       <CategoryDial />
+      {downItems.length
+        ? (
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-muted">
+              <span>
+                暂时连不上：
+                {downItems.map(value => HOT_ITEMS.raw(value)?.label ?? value).join('、')}
+              </span>
+              <button
+                type="button"
+                className="rounded-full bg-default/40 px-2 py-0.5 text-xs hover:bg-default/70"
+                onClick={retryFailedSources}
+              >
+                再试一次
+              </button>
+            </div>
+          )
+        : null}
       {/* 👇 父容器必须是 motion.div 并开启 layout；
           key 绑定分类：切换分类时整体重挂载，复用首屏入场路径——
           若在旧子项退场中途增量挂载新卡片，motion 的 whileInView 观察器不会触发，卡片会卡在隐藏态 */}
@@ -92,7 +120,7 @@ export default function Home() {
         className={gridClassName}
       >
         <AnimatePresence>
-          {visibleItems.map((value) => {
+          {shownItems.map((value) => {
             const raw = HOT_ITEMS.raw(value)
             if (!raw)
               return null

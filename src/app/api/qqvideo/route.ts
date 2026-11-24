@@ -62,14 +62,23 @@ export async function GET() {
       }),
     })
     const cards = resp?.data?.card?.children_list?.list?.cards ?? []
-    const result: HotListItem[] = cards.map((c: any) => ({
-      id: c.params?.cid ?? c.id,
-      title: c.params?.title,
-      desc: c.params?.second_title || c.params?.rec_subtitle,
-      hot: c.params?.item_score,
-      url: `https://v.qq.com/search?searchTerm=${encodeURIComponent(c.params?.title ?? '')}`,
-      mobileUrl: `https://m.v.qq.com/search?searchTerm=${encodeURIComponent(c.params?.title ?? '')}`,
-    })).filter((v: HotListItem) => v.title)
+    const result: HotListItem[] = cards.map((c: any) => {
+      const title = c.params?.title
+      const cid = c.params?.cid
+      const score = Number(c.params?.item_score)
+      const url = cid
+        ? `https://v.qq.com/x/cover/${cid}.html`
+        : `https://v.qq.com/search?searchTerm=${encodeURIComponent(title ?? '')}`
+      return {
+        id: cid ?? c.id,
+        title,
+        desc: c.params?.second_title || c.params?.sub_title || c.params?.rec_subtitle,
+        // 接口目前把 item_score 固定成 "0"，不要当成热度展示
+        hot: score > 0 ? score : undefined,
+        url,
+        mobileUrl: url,
+      }
+    }).filter((v: HotListItem) => v.title)
     return successResponse(result)
   }
   catch (error) {

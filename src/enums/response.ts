@@ -34,6 +34,9 @@ function resolveCacheSeconds(): number {
  */
 export const API_CACHE_SECONDS = resolveCacheSeconds()
 
+/** 手动刷新请求头：服务端看到后跳过上游缓存 */
+export const FRESH_HEADER = 'x-hot-fresh'
+
 const responseConfig = {
   SUCCESS: { value: 200, label: '请求成功' },
   ERROR: { value: 500, label: '请求失败' },

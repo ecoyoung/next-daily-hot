@@ -20,13 +20,16 @@ import {
 } from '@heroui/react'
 import { motion, useInView } from 'motion/react'
 import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import BlurFade from '@/components/BlurFade'
 import SkeletonCard from '@/components/SkeletonCard'
 import { HOT_ITEMS } from '@/enums'
-import { API_CACHE_SECONDS, RESPONSE } from '@/enums/response'
+import { API_CACHE_SECONDS, FRESH_HEADER, RESPONSE } from '@/enums/response'
 import { useRequest } from '@/hooks/use-request'
+import { DOUYIN_BOARD_TABS } from '@/lib/douyin'
+import { HONGGUO_BOARD_TABS } from '@/lib/hongguo'
+import { WEIBO_BOARD_TABS } from '@/lib/weibo'
 import { useAppStore } from '@/store/useAppStore'
 
 import HotListVirtual from './HotListVirtual'
@@ -58,15 +61,19 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
 
   // 手动刷新时绕过 CDN 缓存（URL 加时间戳），自动加载走缓存
   const bypassCacheRef = useRef(false)
+  const noteSourceResult = useAppStore(state => state.noteSourceResult)
 
   const { data, loading, error, run } = useRequest(
     async () => {
-      const url = bypassCacheRef.current
+      const fresh = bypassCacheRef.current
+      const url = fresh
         ? `/api/${value}?t=${Date.now()}`
         : `/api/${value}`
       // 一次性消费标记
       bypassCacheRef.current = false
-      const response = await fetch(url)
+      const response = await fetch(url, fresh
+        ? { cache: 'no-store', headers: { [FRESH_HEADER]: '1' } }
+        : undefined)
       if (response.status !== RESPONSE.SUCCESS) {
         throw new Error('Request failed')
       }
@@ -90,6 +97,34 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
     },
   )
 
+  const [board, setBoard] = useState<string>(value === 'weibo' ? 'realtimehot' : value === 'hongguo' ? 'hot' : 'all')
+  const boardTabs = useMemo(() => {
+    if (value === 'weibo')
+      return WEIBO_BOARD_TABS
+    const tabs = value === 'douyin'
+      ? DOUYIN_BOARD_TABS
+      : value === 'hongguo'
+        ? HONGGUO_BOARD_TABS
+        : null
+    if (!tabs)
+      return []
+    if (!data?.length)
+      return tabs.slice(0, 1)
+    const present = new Set(data.map(item => item.board).filter(Boolean))
+    return tabs.filter(tab => tab.key === 'all' || present.has(tab.key))
+  }, [value, data])
+  const hasBoardTabs = boardTabs.length > 1
+  const filteredData = useMemo(() => {
+    if (!hasBoardTabs || board === 'all' || !data)
+      return data
+    return data.filter(item => item.board === board)
+  }, [hasBoardTabs, board, data])
+
+  useEffect(() => {
+    if (boardTabs.length && !boardTabs.some(tab => tab.key === board))
+      setBoard(boardTabs[0].key)
+  }, [board, boardTabs])
+
   // ✅ 使用 ready 控制自动加载（更可靠）
   // 失败状态强制可刷新：即使 localStorage 残留了上次"假成功"写入的更新时间，
   // error 时也不进入冷却，保证用户能立即重试
@@ -100,6 +135,16 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
       run()
     }
   }, [isInView, run])
+
+  useEffect(() => {
+    if (error)
+      noteSourceResult(value, false)
+  }, [error, noteSourceResult, value])
+
+  useEffect(() => {
+    if (data?.length)
+      noteSourceResult(value, true)
+  }, [data, noteSourceResult, value])
 
   // 手动刷新：绕过 CDN 缓存拿最新数据
   const handleRefresh = () => {
@@ -143,11 +188,36 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
                 : (
                     <CircleXmarkFill width={14} />
                   )}
-            {tip}
+            {hasBoardTabs && board !== 'all' && board !== boardTabs[0]?.key && filteredData?.length
+              ? `${filteredData.length} 条`
+              : tip}
           </Chip>
         </motion.div>
       </Card.Header>
       <Separator />
+      {hasBoardTabs
+        ? (
+            <>
+              <div className="flex gap-1 overflow-x-auto px-3 py-2 scrollbar-none">
+                {boardTabs.map(tab => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setBoard(tab.key)}
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs transition-colors ${
+                      board === tab.key
+                        ? 'bg-foreground text-background'
+                        : 'bg-default/40 text-muted hover:bg-default/70'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <Separator />
+            </>
+          )
+        : null}
       <Card.Content className="relative py-0">
         <ScrollShadow hideScrollBar visibility="bottom" className="h-81.75 relative">
           {loading
@@ -157,16 +227,18 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
             : null}
           {loading
             ? null
-            : !data?.length
+            : !filteredData?.length
                 ? (
                     <Description className="flex h-full justify-center items-center px-8 text-center leading-5">
-                      抱歉，可能服务器遇到问题了，请稍后重试，或者打开右上角设置关闭热榜显示！🤔
+                      {data?.length
+                        ? '这个分类暂时没有热点'
+                        : '抱歉，可能服务器遇到问题了，请稍后重试，或者打开右上角设置关闭热榜显示！🤔'}
                     </Description>
                   )
                 : (
                     <BlurFade className="h-full pl-3">
                       <HotListVirtual
-                        data={data}
+                        data={filteredData}
                         prefix={prefix}
                         suffix={suffix}
                         timeline={timeline}
@@ -184,7 +256,7 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
               ? '正在加载中...'
               : error
                 ? '更新失败'
-                : `${relativeText}更新`}
+                : `${relativeText}获取`}
           </Description>
           <Separator orientation="vertical" className="flex-none" />
           <div className="flex w-1/2 justify-center">
@@ -207,9 +279,9 @@ function HotCard({ value, label, tip, prefix, suffix }: HotListConfig) {
                 <Tooltip.Arrow />
                 {isCooldown
                   ? remainMin > 0
-                    ? `缓存中，约 ${remainMin} 分钟后可刷新`
-                    : '缓存中，即将可刷新'
-                  : '获取最新'}
+                    ? `刚刚获取过，约 ${remainMin} 分钟后可再刷新`
+                    : '刚刚获取过，即将可再刷新'
+                  : '向源站获取最新'}
               </Tooltip.Content>
             </Tooltip>
           </div>

@@ -8,7 +8,9 @@
 
 import { createHash } from 'node:crypto'
 
-import { API_CACHE_SECONDS } from '@/enums/response'
+import { headers } from 'next/headers'
+
+import { API_CACHE_SECONDS, FRESH_HEADER } from '@/enums/response'
 
 /** Chrome 桌面端 UA（多数上游 JSON API 的反爬要求） */
 export const UA_CHROME = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
@@ -47,6 +49,17 @@ export function adaptiveSnapshot(): Record<string, number> {
   return Object.fromEntries([...intervalTracker.entries()].map(([url, s]) => [url, s.interval]))
 }
 
+/** 当前这次接口请求是否要求拿新数据（手动刷新） */
+async function incomingWantsFresh(): Promise<boolean> {
+  try {
+    const incoming = await headers()
+    return incoming.get(FRESH_HEADER) === '1'
+  }
+  catch {
+    return false
+  }
+}
+
 /**
  * 统一 GET 请求并解析 JSON
  * - 默认携带 Chrome UA（可被 init.headers 覆盖，传空字符串可移除）
@@ -55,14 +68,16 @@ export function adaptiveSnapshot(): Record<string, number> {
  * - 非 2xx 直接抛错（错误信息含状态码与 URL）
  */
 export async function fetchJson<T = any>(url: string, init: RequestInitLike = {}): Promise<T> {
-  const { cache, next, headers, signal, ...restInit } = init
+  const { cache, next, headers: initHeaders, signal, ...restInit } = init
+  const fresh = await incomingWantsFresh()
+  const resolvedCache = fresh ? 'no-store' : cache
   const response = await fetch(url, {
     ...restInit,
-    ...(cache ? { cache } : {}),
-    // 默认走自适应 revalidate；调用方显式传 cache / next 时尊重调用方
-    ...(next ?? (cache ? {} : { next: { revalidate: adaptiveRevalidate(url) } })),
+    ...(resolvedCache ? { cache: resolvedCache } : {}),
+    // 手动刷新强制不缓存；否则默认走自适应 revalidate，调用方显式传 cache / next 时尊重调用方
+    ...(fresh || resolvedCache ? {} : (next ?? { next: { revalidate: adaptiveRevalidate(url) } })),
     signal: signal ?? AbortSignal.timeout(REQUEST_TIMEOUT),
-    headers: buildHeaders(headers),
+    headers: buildHeaders(initHeaders),
   })
   if (!response.ok) {
     throw new Error(`上游请求失败：${response.status} ${url}`)
@@ -76,14 +91,16 @@ export async function fetchJson<T = any>(url: string, init: RequestInitLike = {}
  * 统一 GET 请求并返回文本（用于 cheerio / 正则解析的 HTML 页面）
  */
 export async function fetchText(url: string, init: RequestInitLike = {}): Promise<string> {
-  const { cache, next, headers, signal, ...restInit } = init
+  const { cache, next, headers: initHeaders, signal, ...restInit } = init
+  const fresh = await incomingWantsFresh()
+  const resolvedCache = fresh ? 'no-store' : cache
   const response = await fetch(url, {
     ...restInit,
-    ...(cache ? { cache } : {}),
-    // 默认走自适应 revalidate；调用方显式传 cache / next 时尊重调用方
-    ...(next ?? (cache ? {} : { next: { revalidate: adaptiveRevalidate(url) } })),
+    ...(resolvedCache ? { cache: resolvedCache } : {}),
+    // 手动刷新强制不缓存；否则默认走自适应 revalidate，调用方显式传 cache / next 时尊重调用方
+    ...(fresh || resolvedCache ? {} : (next ?? { next: { revalidate: adaptiveRevalidate(url) } })),
     signal: signal ?? AbortSignal.timeout(REQUEST_TIMEOUT),
-    headers: buildHeaders(headers),
+    headers: buildHeaders(initHeaders),
   })
   if (!response.ok) {
     throw new Error(`上游请求失败：${response.status} ${url}`)

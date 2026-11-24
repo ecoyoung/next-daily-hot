@@ -27,6 +27,8 @@ export async function GET() {
         mobileUrl: k.data?.url,
       }))
       .filter((v: HotListItem) => v.title && v.url)
+    if (!result.length)
+      return errorResponse()
     return successResponse(result)
   }
   catch (error) {

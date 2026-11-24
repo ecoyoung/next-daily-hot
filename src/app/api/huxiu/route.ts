@@ -5,6 +5,7 @@
  * @LastEditTime: 2026-09-11 14:20:05
  * @Description: 虎嗅 - 最新资讯
  */
+import { formatShanghai } from '@/lib/relative-time'
 import { fetchJson } from '@/lib/request'
 import { errorResponse, successResponse } from '@/lib/response'
 
@@ -36,7 +37,7 @@ export async function GET() {
           id,
           title,
           desc: intro,
-          tip: v.format_time,
+          tip: v.publish_time ? formatShanghai(v.publish_time * 1000) : undefined,
           url: `https://www.huxiu.com/moment/${id}.html`,
           mobileUrl: `https://m.huxiu.com/moment/${id}.html`,
         }

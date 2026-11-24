@@ -2,36 +2,35 @@
  * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2026-09-11 14:20:05
  * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
- * @LastEditTime: 2026-09-11 14:20:05
+ * @LastEditTime: 2026-11-19 10:40:00
  * @Description: AIHOT - AI 产品动态
  */
 import { fetchText } from '@/lib/request'
 import { errorResponse, successResponse } from '@/lib/response'
+import { rssDateToMonthDay } from '@/lib/rss'
 
 import type { HotListItem } from '@/types'
 
 export async function GET() {
-  // 官方 url（AI 产品分类动态，页面数据内嵌于 RSC flight payload）
-  const url = 'https://aihot.virxact.com/all?category=ai-products&page=1'
+  // 官方 url（站点已从 Next.js RSC 迁到 React Router，数据内嵌于 RR stream）
+  const url = 'https://aihot.news/all?category=ai-products&page=1'
   try {
-    // 请求数据（统一 UA + 超时）
     const responseBody = await fetchText(url, {
       headers: {
-        Referer: 'https://aihot.virxact.com/',
-        Accept: 'text/html',
+        'Referer': 'https://aihot.news/',
+        'Accept': 'text/html',
       },
     })
-    const items = extractInitialItems(extractFlightPayload(responseBody))
+    const items = extractItems(responseBody)
     const result: HotListItem[] = items
-      // linkedPrimary 非空是被聚合到主故事的重复条目；url 只放行 http(s) 原文链接
-      .filter(v => !v.linkedPrimary && v.titleZh && /^https?:\/\//.test(v.url ?? ''))
-      .map((v: any) => ({
+      .filter(v => v.title)
+      .map(v => ({
         id: v.id,
-        title: v.titleZh,
-        desc: (v.summaryZh ?? '').replace(/\s+/g, ' ').trim(),
-        hot: v.finalScore,
-        label: v.aiTags?.[0]?.tag,
-        // 直达原文（IT之家 / X / GitHub 等），而非站内故事页
+        title: v.title,
+        desc: (v.summary ?? '').replace(/\s+/g, ' ').trim().slice(0, 120) || undefined,
+        hot: v.score,
+        label: v.tags.find(Boolean) || v.sourceName,
+        tip: rssDateToMonthDay(v.publishedAt),
         url: v.url,
         mobileUrl: v.url,
       }))
@@ -43,11 +42,166 @@ export async function GET() {
   }
 }
 
-/**
- * 从 HTML 中提取 RSC flight payload：
- * 逐段扫描 self.__next_f.push([1,"…"])，按转义规则找到字符串真实结尾后 JSON.parse，
- * 不能用懒惰正则——页面 CSS 中含 `"])` 字样会被误截断
- */
+interface AihotItem {
+  id: string
+  title: string
+  summary: string
+  publishedAt?: string
+  score?: number
+  tags: string[]
+  sourceName?: string
+  url: string
+}
+
+/** 优先 React Router stream；旧版 Next.js RSC payload 作回退 */
+function extractItems(html: string): AihotItem[] {
+  const fromRouter = extractReactRouterItems(html)
+  if (fromRouter.length)
+    return fromRouter
+  return extractLegacyRscItems(html)
+}
+
+function extractReactRouterItems(html: string): AihotItem[] {
+  const payload = extractQuotedJsString(html, 'window.__reactRouterContext.streamController.enqueue(')
+  if (!payload)
+    return []
+  let arr: unknown[]
+  try {
+    arr = JSON.parse(payload) as unknown[]
+  }
+  catch {
+    return []
+  }
+  const itemsIdx = arr.indexOf('items')
+  const ptrs = itemsIdx >= 0 ? arr[itemsIdx + 1] : null
+  if (!Array.isArray(ptrs))
+    return []
+
+  const result: AihotItem[] = []
+  for (const ptr of ptrs) {
+    const raw = typeof ptr === 'number' ? arr[ptr] : ptr
+    if (!isRecord(raw))
+      continue
+    const item = decodeRecord(arr, raw)
+    const title = typeof item.title === 'string' ? item.title : ''
+    const id = typeof item.id === 'string' || typeof item.id === 'number' ? String(item.id) : ''
+    if (!title || !id)
+      continue
+    const x = isRecord(item.x) ? item.x : {}
+    const source = isRecord(item.source) ? item.source : {}
+    const tags = Array.isArray(item.tags) ? item.tags.filter((t): t is string => typeof t === 'string') : []
+    const summary = typeof item.summary === 'string' ? item.summary : ''
+    const handle = typeof x.handle === 'string' ? x.handle : undefined
+    const fromSummary = summary.match(/https?:\/\/[^\s)\]>'"]+/)?.[0]?.replace(/[。．，,;；]+$/, '')
+    const url = fromSummary
+      ?? (handle ? `https://x.com/${handle}` : `https://aihot.news/s/${id}`)
+    const publishedAt = typeof item.publishedAt === 'string' ? item.publishedAt : undefined
+    const score = typeof item.score === 'number' ? item.score : undefined
+    const sourceName = typeof source.name === 'string' ? source.name : undefined
+    result.push({ id, title, summary, publishedAt, score, tags, sourceName, url })
+  }
+  return result
+}
+
+/** 旧站 Next.js flight：self.__next_f.push([1,"…"]) + initialItems */
+function extractLegacyRscItems(html: string): AihotItem[] {
+  const payload = extractFlightPayload(html)
+  const raw = extractInitialItems(payload)
+  return raw
+    .filter(v => !v.linkedPrimary && v.titleZh)
+    .map((v: any) => ({
+      id: String(v.id ?? ''),
+      title: String(v.titleZh ?? ''),
+      summary: String(v.summaryZh ?? ''),
+      publishedAt: typeof v.publishedAt === 'string' ? v.publishedAt : undefined,
+      score: typeof v.finalScore === 'number' ? v.finalScore : undefined,
+      tags: Array.isArray(v.aiTags) ? v.aiTags.map((t: any) => t?.tag).filter(Boolean) : [],
+      url: /^https?:\/\//.test(v.url ?? '') ? v.url : `https://aihot.news/s/${v.id}`,
+    }))
+    .filter((v: AihotItem) => v.id && v.title)
+}
+
+function decodeRecord(arr: unknown[], raw: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, val] of Object.entries(raw)) {
+    const name = fieldName(arr, key)
+    if (name === 'tags' && typeof val === 'number' && Array.isArray(arr[val])) {
+      out.tags = (arr[val] as unknown[]).map(item => primitive(arr, item)).filter(v => v != null)
+      continue
+    }
+    if ((name === 'x' || name === 'source') && typeof val === 'number' && isRecord(arr[val])) {
+      out[name] = decodeRecord(arr, arr[val] as Record<string, unknown>)
+      continue
+    }
+    if (name === 'score') {
+      const resolved = primitive(arr, val)
+      out.score = typeof resolved === 'number' ? resolved : undefined
+      continue
+    }
+    out[name] = primitive(arr, val)
+  }
+  return out
+}
+
+function fieldName(arr: unknown[], key: string): string {
+  if (key.startsWith('_') && /^\d+$/.test(key.slice(1))) {
+    const name = arr[Number(key.slice(1))]
+    if (typeof name === 'string')
+      return name
+  }
+  return key
+}
+
+function primitive(arr: unknown[], val: unknown): unknown {
+  if (val === -5)
+    return null
+  if (typeof val === 'number' && val >= 0 && val < arr.length) {
+    const v = arr[val]
+    if (v == null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
+      return v
+    return val
+  }
+  return val
+}
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v != null && !Array.isArray(v)
+}
+
+/** 从 `marker"` 起按 JS 字符串转义规则截取并 JSON.parse */
+function extractQuotedJsString(html: string, marker: string): string {
+  const s = html.indexOf(marker)
+  if (s === -1)
+    return ''
+  let i = s + marker.length
+  while (i < html.length && /\s/.test(html[i]))
+    i++
+  if (html[i] !== '"')
+    return ''
+  const quoteStart = i
+  i++
+  let esc = false
+  for (; i < html.length; i++) {
+    const c = html[i]
+    if (esc) {
+      esc = false
+      continue
+    }
+    if (c === '\\') {
+      esc = true
+      continue
+    }
+    if (c === '"')
+      break
+  }
+  try {
+    return JSON.parse(html.slice(quoteStart, i + 1)) as string
+  }
+  catch {
+    return ''
+  }
+}
+
 function extractFlightPayload(html: string): string {
   const marker = 'self.__next_f.push([1,'
   let payload = ''
@@ -82,7 +236,6 @@ function extractFlightPayload(html: string): string {
   return payload
 }
 
-/** 从 payload 中括号配平提取 initialItems 数组（跳过字符串内的方括号） */
 function extractInitialItems(payload: string): any[] {
   const key = '"initialItems":'
   const start = payload.indexOf(key)

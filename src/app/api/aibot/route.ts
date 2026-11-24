@@ -22,7 +22,15 @@ export async function GET() {
         Accept: 'application/rss+xml, application/xml, text/xml, */*',
       },
     })
-    const result: HotListItem[] = parseRss(xml).map(item => ({
+    const items = parseRss(xml)
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const recent = items.filter((item) => {
+      const ts = item.pubDate ? new Date(item.pubDate).getTime() : 0
+      return ts >= cutoff
+    })
+    // 整份 RSS 有数百条历史稿，只留近 7 天
+    const picked = (recent.length ? recent : items).slice(0, 30)
+    const result: HotListItem[] = picked.map(item => ({
       id: item.link,
       title: item.title,
       desc: item.description?.replace(/<[^>]+>/g, '').slice(0, 60),

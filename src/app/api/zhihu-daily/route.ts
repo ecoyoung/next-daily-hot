@@ -21,18 +21,22 @@ export async function GET() {
         Host: 'daily.zhihu.com',
       },
     })
-    const data = responseBody?.stories
-    if (!data) {
-      return successResponse()
+    const stories = responseBody?.stories ?? []
+    const tops = responseBody?.top_stories ?? []
+    const seen = new Set<number>()
+    const result: HotListItem[] = []
+    for (const item of [...tops, ...stories]) {
+      if (!item?.id || !item.title || seen.has(item.id))
+        continue
+      seen.add(item.id)
+      const storyUrl = item.url || `https://daily.zhihu.com/story/${item.id}`
+      result.push({
+        id: item.id,
+        title: item.title,
+        url: storyUrl,
+        mobileUrl: storyUrl,
+      })
     }
-    const result: HotListItem[] = data.map((v: any) => {
-      return {
-        id: v.id,
-        title: v.title,
-        url: v.url,
-        mobileUrl: v.url,
-      }
-    })
     return successResponse(result)
   }
   catch (error) {

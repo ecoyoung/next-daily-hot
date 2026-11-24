@@ -2,49 +2,40 @@
  * @Author: Ethan Zhou <ecoyoung918@gmail.com>
  * @Date: 2026-09-11 14:21:42
  * @LastEditors: Ethan Zhou <ecoyoung918@gmail.com>
- * @LastEditTime: 2026-09-11 14:21:42
- * @Description: 小红书实时热榜
+ * @LastEditTime: 2026-11-24 11:20:00
+ * @Description: 小红书热榜（官网 H5 接口，不再使用 2023 年写死的客户端签名）
  */
 import { fetchJson } from '@/lib/request'
 import { errorResponse, successResponse } from '@/lib/response'
+import { XHS_HOT_PATH, signXiaohongshuV1, xiaohongshuHotUrl } from '@/lib/xiaohongshu'
 
 import type { HotListItem } from '@/types'
 
 export async function GET() {
-  // 官方 url
-  const url = 'https://edith.xiaohongshu.com/api/sns/v1/search/hot_list'
-  const xhsHeaders = {
-    'User-Agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.7(0x18000733) NetType/WIFI Language/zh_CN',
-    'referer': 'https://app.xhs.cn/',
-    'xy-direction': '22',
-    'shield':
-      'XYAAAAAQAAAAEAAABTAAAAUzUWEe4xG1IYD9/c+qCLOlKGmTtFa+lG434Oe+FTRagxxoaz6rUWSZ3+juJYz8RZqct+oNMyZQxLEBaBEL+H3i0RhOBVGrauzVSARchIWFYwbwkV',
-    'xy-platform-info':
-      'platform=iOS&version=8.7&build=8070515&deviceId=C323D3A5-6A27-4CE6-AA0E-51C9D4C26A24&bundle=com.xingin.discover',
-    'xy-common-params':
-      'app_id=ECFAAF02&build=8070515&channel=AppStore&deviceId=C323D3A5-6A27-4CE6-AA0E-51C9D4C26A24&device_fingerprint=20230920120211bd7b71a80778509cf4211099ea911000010d2f20f6050264&device_fingerprint1=20230920120211bd7b71a80778509cf4211099ea911000010d2f20f6050264&device_model=phone&fid=1695182528-0-0-63b29d709954a1bb8c8733eb2fb58f29&gid=7dc4f3d168c355f1a886c54a898c6ef21fe7b9a847359afc77fc24ad&identifier_flag=0&lang=zh-Hans&launch_id=716882697&platform=iOS&project_id=ECFAAF&sid=session.1695189743787849952190&t=1695190591&teenager=0&tz=Asia/Shanghai&uis=light&version=8.7',
-  }
+  const sign = signXiaohongshuV1(XHS_HOT_PATH)
   try {
-    // 请求数据（统一超时，覆盖 iPhone 微信 UA 等反爬头）
-    const responseBody = await fetchJson(url, {
-      headers: xhsHeaders,
+    const responseBody = await fetchJson<any>(xiaohongshuHotUrl(), {
+      cache: 'no-store',
+      headers: {
+        'Referer': 'https://www.xiaohongshu.com/search/hot',
+        'Origin': 'https://www.xiaohongshu.com',
+        'x-s': sign.xs,
+        'x-t': sign.xt,
+        'x-s-common': sign.common,
+      },
     })
-    // 处理数据
-    if (responseBody.success) {
-      const result: HotListItem[] = responseBody.data?.items.map((v: any) => {
-        return {
-          id: v.id,
-          title: v.title,
-          hot: v.score,
-          label: (!v.word_type || v.word_type === '无') ? undefined : v.word_type,
-          url: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(v.title)}`,
-          mobileUrl: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(v.title)}`,
-        }
-      })
-      return successResponse(result)
-    }
-    return successResponse()
+    const items = responseBody?.data?.items ?? []
+    const result: HotListItem[] = items.map((item: any) => ({
+      id: item.id,
+      title: item.title,
+      hot: item.score,
+      label: (!item.word_type || item.word_type === '无') ? undefined : item.word_type,
+      url: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(item.title)}`,
+      mobileUrl: `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(item.title)}`,
+    })).filter((item: HotListItem) => item.title)
+    if (!result.length)
+      return errorResponse()
+    return successResponse(result)
   }
   catch (error) {
     console.error('上游请求失败：', error)

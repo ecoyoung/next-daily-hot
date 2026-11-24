@@ -7,6 +7,7 @@
  */
 import * as cheerio from 'cheerio'
 
+import { parseRelativeTime } from '@/lib/relative-time'
 import { fetchText } from '@/lib/request'
 import { errorResponse, successResponse } from '@/lib/response'
 
@@ -18,6 +19,8 @@ export async function GET() {
   try {
     // 请求数据（统一 UA + 超时）
     const responseBody = await fetchText(url, {
+      // 页面只有「19分钟前」，必须拿当下的 HTML 再换算成绝对时间
+      cache: 'no-store',
       headers: {
         Referer: 'https://wx.jumeili.cn/',
         Accept: 'text/html',
@@ -35,7 +38,7 @@ export async function GET() {
         id: id || href,
         title: dom.find('a.title').text().trim(),
         desc: dom.find('.art-name').text().trim(),
-        tip: dom.find('time').text().trim(),
+        tip: parseRelativeTime(dom.find('time').text())?.tip,
         url: link,
         mobileUrl: link,
       }

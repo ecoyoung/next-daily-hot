@@ -58,6 +58,8 @@ export const hotLableColor: Record<string, string> = {
   新: '#ff3852',
   暖: '#ffab5a',
   爆: '#bd0000',
+  播: '#ff3852',
+  挑战: '#ff9406',
 }
 
 /**

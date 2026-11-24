@@ -33,13 +33,15 @@ export async function GET() {
         'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 10; Redmi K30 5G MIUI/V12.0.3.0.QGICMXM) +CoolMarket/11.0-2101202',
       },
     })
-    const result: HotListItem[] = (responseBody?.data ?? [])
-      .filter((v: any) => v.id)
+    const oldest = Math.floor(Date.now() / 1000) - 14 * 24 * 3600
+    const rows = (responseBody?.data ?? []).filter((v: any) => v.id)
+    const fresh = rows.filter((v: any) => !v.dateline || v.dateline >= oldest)
+    const result: HotListItem[] = (fresh.length >= 8 ? fresh : rows)
       .map((v: any) => ({
         id: v.id,
         // message 是多行 HTML，取首行；有编辑标题优先
         title: v.editor_title || v.message?.replace(/<[^>]+>/g, ' ').split('\n')[0]?.trim(),
-        hot: v.targetRow?.subTitle,
+        hot: parseCoolapkHot(v.targetRow?.subTitle),
         tip: v.dateline ? new Date(v.dateline * 1000 + 8 * 3600 * 1000).toISOString().slice(5, 10) : undefined,
         url: `https://www.coolapk.com${v.url}`,
         mobileUrl: `https://www.coolapk.com${v.url}`,
@@ -51,6 +53,21 @@ export async function GET() {
     console.error('上游请求失败：', error)
     return errorResponse()
   }
+}
+
+/** 「183.1万热度 3.8万讨论」里只取热度，避免整句被当成数字展示 */
+function parseCoolapkHot(text?: string): number | undefined {
+  const match = text?.replace(/\s+/g, '').match(/(\d+(?:\.\d+)?)(万|亿)?热度/)
+  if (!match)
+    return undefined
+  const value = Number(match[1])
+  if (!Number.isFinite(value))
+    return undefined
+  if (match[2] === '亿')
+    return Math.round(value * 1e8)
+  if (match[2] === '万')
+    return Math.round(value * 1e4)
+  return Math.round(value)
 }
 
 /** 酷安 App 请求 token：md5(base64(token://...)) + 设备ID + 16进制时间 */

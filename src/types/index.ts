@@ -25,7 +25,9 @@ export interface HotListItem {
   tip?: string // 如果不显示热度，显示其他信息
   url: string // 地址
   mobileUrl: string // 移动端地址
-  label?: string // 标签（微博）
+  label?: string // 标签（微博爆点 / 抖音角标）
+  /** 源内子分类（如抖音 sentence_tag 映射的文娱/影视） */
+  board?: string
 }
 
 /**

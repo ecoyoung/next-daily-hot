@@ -13,7 +13,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN corepack enable && pnpm build
+RUN corepack enable && corepack prepare pnpm@10.33.1 --activate && pnpm build
 
 # ---- 运行层：standalone 精简产物 ----
 FROM ${BASE} AS runner

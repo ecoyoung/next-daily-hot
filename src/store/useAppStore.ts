@@ -17,6 +17,14 @@ import { fromNow } from '@/lib/utils'
 import type { HotValue } from '@/enums'
 import type { CategoryKey } from '@/enums/categories'
 
+/** 连续失败这么多次后，首页先收起该源，避免一排加载失败 */
+export const SOURCE_FAIL_HIDE = 3
+
+export interface SourceHealth {
+  failCount: number
+  lastErrorAt: number
+}
+
 interface AppState {
   /** 当前罗盘选中的分类（all = 全部） */
   category: CategoryKey
@@ -36,6 +44,11 @@ interface AppState {
   /** 隐藏的热榜 */
   hiddenItems: HotValue[]
   setHiddenItems: (items: HotValue[]) => void
+
+  /** 请求失败计数（不持久化，刷新页面清零） */
+  sourceHealth: Partial<Record<HotValue, SourceHealth>>
+  noteSourceResult: (key: HotValue, ok: boolean) => void
+  retryFailedSources: () => void
 
   // 热榜排序
   sortItems: HotValue[]
@@ -82,6 +95,29 @@ export const useAppStore = create(
       hiddenItems: [],
       setHiddenItems: (items) => {
         set({ hiddenItems: items })
+      },
+
+      sourceHealth: {},
+      noteSourceResult: (key, ok) => {
+        set((state) => {
+          if (ok) {
+            if (!state.sourceHealth[key])
+              return state
+            const sourceHealth = { ...state.sourceHealth }
+            delete sourceHealth[key]
+            return { sourceHealth }
+          }
+          const prev = state.sourceHealth[key]
+          return {
+            sourceHealth: {
+              ...state.sourceHealth,
+              [key]: { failCount: (prev?.failCount ?? 0) + 1, lastErrorAt: Date.now() },
+            },
+          }
+        })
+      },
+      retryFailedSources: () => {
+        set({ sourceHealth: {} })
       },
 
       sortItems: HOT_ITEMS.values,
