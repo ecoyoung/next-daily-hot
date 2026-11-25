@@ -56,7 +56,6 @@ export const CATEGORY_LABEL = (key: CategoryKey): string => categoryMap[key] ?? 
  */
 export const SOURCE_CATEGORIES = {
   'weibo': ['general', 'social'],
-  'xiaohongshu': ['social'],
   'bilibili': ['social'],
   'douyin': ['social'],
   'toutiao': ['general'],

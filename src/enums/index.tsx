@@ -15,7 +15,6 @@ import type { ReactNode } from 'react'
  */
 const hotItemsConfig = {
   'WEIBO': { value: 'weibo', label: '微博', tip: '热搜榜' },
-  'XIAOHONGSHU': { value: 'xiaohongshu', label: '小红书', tip: '实时热榜' },
   'BILIBILI': { value: 'bilibili', label: '哔哩哔哩', tip: '热搜榜' },
   'DOUYIN': { value: 'douyin', label: '抖音', tip: '热点榜' },
   'TOUTIAO': { value: 'toutiao', label: '今日头条', tip: '热榜' },
